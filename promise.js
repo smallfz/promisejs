@@ -122,7 +122,7 @@
         headers = headers || {};
 
 	var skipContentType = false;
-	if(data && data instanceof FormData){
+	if(data && typeof FormData != 'undefined' && data instanceof FormData){
 	    skipContentType = true;
 	}
 
