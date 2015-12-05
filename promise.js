@@ -121,6 +121,11 @@
         data = data || {};
         headers = headers || {};
 
+	var skipContentType = false;
+	if(data && data instanceof FormData){
+	    skipContentType = true;
+	}
+
         try {
             xhr = new_xhr();
         } catch (e) {
@@ -128,25 +133,31 @@
             return p;
         }
 
-        payload = _encode(data);
-        if (method === 'GET' && payload) {
+	var payload = null;
+        if (method === 'GET') {
+	    payload = _encode(data);
             url += '?' + payload;
-            payload = null;
-        }
+        }else if(!skipContentType){
+	    payload = _encode(data);
+	}else{
+	    payload = data;
+	}
 
         xhr.open(method, url);
 
         var content_type = 'application/x-www-form-urlencoded';
         for (var h in headers) {
             if (headers.hasOwnProperty(h)) {
-                if (h.toLowerCase() === 'content-type')
-                    content_type = headers[h];
-                else
+                if (h.toLowerCase() === 'content-type'){
+		    content_type = headers[h];
+                } else {
                     xhr.setRequestHeader(h, headers[h]);
+		}
             }
         }
-        xhr.setRequestHeader('Content-type', content_type);
-
+	if(!skipContentType){
+            xhr.setRequestHeader('Content-type', content_type);
+	}
 
         function onTimeout() {
             xhr.abort();
